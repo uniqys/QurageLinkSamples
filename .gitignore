@@ -1,0 +1,6 @@
+# for IDE
+.idea
+
+# node
+node_modules
+.nuxt
