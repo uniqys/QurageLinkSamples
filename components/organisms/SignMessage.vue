@@ -11,31 +11,31 @@
           <SignMessageContent
             title="Net version"
             :message="message.netVersion"
-            @web3="netVersionWeb3()"
+            @http="netVersionHttp()"
             @ethereum="netVersionEthereum()"
           />
           <SignMessageContent
             title="Sign message"
             :message="message.eth"
-            @web3="ethSignWeb3(signMessage)"
+            @http="ethSignHttp(signMessage)"
             @ethereum="ethSignEthereum(signMessage)"
           />
           <SignMessageContent
             title="Personal message"
             :message="message.personal"
-            @web3="personalSignWeb3(personalSignText)"
+            @http="personalSignHttp(personalSignText)"
             @ethereum="personalSignEthereum(personalSignText)"
           />
           <SignMessageContent
             title="Typed message"
             :message="message.typed"
-            disabledWeb3
+            @http="typedMessageHttp(typedMessage)"
             @ethereum="typedMessageEthereum(typedMessage)"
           />
           <SignMessageContent
             :title="'EC Recover from Personal message'"
             :message="recoveredMessage"
-            @web3="ecRecoverWeb3(personalSignText, (message.personal).split(': ')[1])"
+            @http="ecRecoverHttp(personalSignText, (message.personal).split(': ')[1])"
             @ethereum="ecRecoverEthereum(personalSignText, (message.personal).split(': ')[1])"
           />
         </div>
@@ -52,7 +52,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'nuxt-property-decorator'
-import { JsonRPCResponse, ProviderMethod, ResultCallback } from '@uniqys/qurage-link-lib'
+import { JsonRPCResponse, ProviderMethod, Callback } from '@uniqys/qurage-link-lib'
 
 import CardTitle from '../atoms/CardTitle.vue'
 import CardIcon from '../atoms/CardIcon.vue'
@@ -133,7 +133,7 @@ export default class SignMessageCard extends Vue {
     return (window as any).ethereum
   }
 
-  netVersionWeb3 () {
+  netVersionHttp () {
     const web3 = this.web3
     try {
       const netVersion = web3.version.network
@@ -153,7 +153,7 @@ export default class SignMessageCard extends Vue {
     }
   }
 
-  ethSignWeb3 (message: string) {
+  ethSignHttp (message: string) {
     this.isSigning = true
 
     const web3 = this.web3
@@ -182,13 +182,13 @@ export default class SignMessageCard extends Vue {
     })
   }
 
-  async personalSignWeb3 (text: string): Promise<void> {
+  async personalSignHttp (text: string): Promise<void> {
     await this.signAsyncWithState(async () => {
       const web3 = this.web3
       const from = web3.eth.defaultAccount.toLowerCase()
-      const callback: ResultCallback = (err, result) => {
+      const callback: Callback<JsonRPCResponse> = (err: Error | null, result?: JsonRPCResponse) => {
         if (err) { return console.error(err) }
-        this.message.personal = `PERSONAL SIGNED: ${result.result}`
+        this.message.personal = `PERSONAL SIGNED: ${result!.result}`
       }
 
       await web3.currentProvider.sendAsync({
@@ -205,9 +205,27 @@ export default class SignMessageCard extends Vue {
       const web3 = this.ethereum
 
       const [from] = await web3.eth.getAccounts()
-      await this.send(ProviderMethod.PersonalSign, [from, text])
-        .then(sign => this.message.personal = `SIGNED: ${sign.result}`)
-        .catch(err => console.error(err))
+      await web3.currentProvider.send(ProviderMethod.PersonalSign, [from, text])
+        .then((result: string) => this.message.personal = `PERSONAL SIGNED: ${result}`)
+        .catch((err: Error) => console.error(err))
+    })
+  }
+
+  async typedMessageHttp (text: string): Promise<void> {
+    await this.signAsyncWithState(async () => {
+      const web3 = this.web3
+
+      const from = web3.eth.defaultAccount.toLowerCase()
+      const callback: Callback<JsonRPCResponse> = (err: Error | null, result?: JsonRPCResponse) => {
+        if (err) { return console.error(err) }
+        this.message.typed = `SIGNED TYPED MESSAGE: ${result!.result}`
+      }
+      await web3.currentProvider.sendAsync({
+        from,
+        method: ProviderMethod.EthSignTypedDataV3,
+        params: [from, text],
+        jsonrpc: '2.0'
+      }, callback)
     })
   }
 
@@ -216,23 +234,23 @@ export default class SignMessageCard extends Vue {
       const web3 = this.ethereum
 
       const [from] = await web3.eth.getAccounts()
-      await this.send(ProviderMethod.EthSignTypedDataV3, [from, text])
-        .then(sign => this.message.typed = `SIGNED TYPED MESSAGE: ${sign.result}`)
-        .catch(err => console.error(err))
+      await web3.currentProvider.send(ProviderMethod.EthSignTypedDataV3, [from, text])
+        .then((result: string) => this.message.typed = `SIGNED TYPED MESSAGE: ${result}`)
+        .catch((err: Error) => console.error(err))
     })
   }
 
-  async ecRecoverWeb3 (message: string, signature: string): Promise<void> {
+  async ecRecoverHttp (message: string, signature: string): Promise<void> {
     await this.signAsyncWithState(async () => {
       const web3 = this.web3
 
       const from = web3.eth.defaultAccount.toLowerCase()
-      const callback: ResultCallback = (err, result) => {
+      const callback: Callback<JsonRPCResponse> = (err: Error | null, result?: JsonRPCResponse) => {
         if (err) {
           return console.error(err)
         }
 
-        const recovered = result.result
+        const recovered = result!.result
         this.recoveredMessage = `RECOVERED ADDRESS: ${recovered}`
       }
 
@@ -250,12 +268,12 @@ export default class SignMessageCard extends Vue {
       const web3 = this.ethereum
 
       const [from] = await web3.eth.getAccounts()
-      const callback: ResultCallback = (err, result) => {
+      const callback: Callback<JsonRPCResponse> = (err: Error | null, result?: JsonRPCResponse) => {
         if (err) {
           return console.error(err)
         }
 
-        const recovered = result.result;
+        const recovered = result!.result;
         this.recoveredMessage = `RECOVERED ADDRESS: ${recovered}`
       }
 
@@ -265,37 +283,6 @@ export default class SignMessageCard extends Vue {
         params: [message, signature],
         jsonrpc: '2.0',
       }, callback)
-    })
-  }
-
-  // EIP-1193 compatibility
-  private async send (method: string, params: any[]): Promise<JsonRPCResponse> {
-    const web3 = this.ethereum
-
-    return new Promise<JsonRPCResponse>((resolve, reject) => {
-      const callback = (err: Error | null, res: JsonRPCResponse) => {
-        if (err) {
-          reject(err)
-          return
-        }
-        if (!res) {
-          reject(new Error('send: occurred error'))
-          return
-        }
-        if (res.error) {
-          reject(new Error(res.error))
-          return
-        }
-        resolve(res)
-      }
-
-      web3.currentProvider
-        .send({
-          id: 0,
-          jsonrpc: '2.0',
-          method,
-          params,
-        }, callback)
     })
   }
 

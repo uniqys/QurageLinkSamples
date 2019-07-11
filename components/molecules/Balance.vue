@@ -4,7 +4,7 @@
     <p>残高: {{ balance | ethUnit }}</p>
     <button
       class="button is-primary"
-      @click="$emit('web3')"
+      @click="$emit('http')"
     >
       web3 0.20
     </button>

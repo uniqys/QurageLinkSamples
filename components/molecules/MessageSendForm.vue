@@ -18,7 +18,7 @@
         <button
           :disabled="isSending"
           class="button is-primary"
-          @click="clickWeb3"
+          @click="clickHttp"
         >
           web3 0.20
         </button>
@@ -53,8 +53,8 @@ export default class MessageSendForm extends Vue {
 
   message: string = ''
 
-  clickWeb3 (): void {
-    this.$emit('web3')
+  clickHttp (): void {
+    this.$emit('http')
     this.message = ''
   }
 

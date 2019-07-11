@@ -28,7 +28,7 @@
     "@types/node": "^11.9.5",
     "@types/web3": "^1.0.18",
     "@types/webpack": "^4.4.24",
-    "@uniqys/qurage-link-lib": "^1.1.0",
+    "@uniqys/qurage-link-lib": "^2.1.0",
     "eth-sig-util": "^2.1.1",
     "ethereumjs-util": "^6.1.0",
     "nuxt-property-decorator": "^2.0.1",

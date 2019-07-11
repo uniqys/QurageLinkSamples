@@ -3,8 +3,8 @@
     <h2>{{ title }}</h2>
     <button
       class="button is-primary"
-      @click="$emit('web3')"
-      :disabled="disabledWeb3"
+      @click="$emit('http')"
+      :disabled="disabledHttp"
     >
       web3 0.20
     </button>
@@ -26,7 +26,7 @@ import { Component, Prop, Vue } from 'nuxt-property-decorator'
 export default class SignMessageContent extends Vue {
   @Prop() title!: string
   @Prop() message!: string
-  @Prop() disabledWeb3?: boolean
+  @Prop() disabledHttp?: boolean
   @Prop() disabledEthereum?: boolean
 }
 </script>

@@ -10,20 +10,20 @@
         <Balance
           :balance="balance"
           :isUpdating="isBalanceUpdating"
-          @web3="updateBalanceWeb3"
+          @http="updateBalanceHttp"
           @ethereum="updateBalanceEthereum"
         />
         <Messages
           :messages="messages"
           :isUpdating="isMessagesUpdating"
-          @web3="updateMessagesWeb3"
+          @http="updateMessagesHttp"
           @ethereum="updateMessagesEthereum"
         />
         <MessageSendForm
           :message.sync="message"
           :isSending="isMessageSending"
           :linkResult="linkResult"
-          @web3="sendMessageTransactionWeb3"
+          @http="sendMessageTransactionHttp"
           @ethereum="sendMessageTransactionEthereum"
         />
       </template>
@@ -124,7 +124,7 @@ export default class Transaction extends Vue {
     return contract
   }
 
-  async updateBalanceWeb3 (): Promise<void> {
+  async updateBalanceHttp (): Promise<void> {
     await this.updateBalanceWithState(async () => {
       const balance = await promisify(this.web3.eth.getBalance)(this.account) as any as string
       this.balance = parseInt(balance, 10)
@@ -139,7 +139,7 @@ export default class Transaction extends Vue {
     })
   }
 
-  async updateMessagesWeb3 (): Promise<void> {
+  async updateMessagesHttp (): Promise<void> {
     await this.updateMessagesWithState(async () => {
       const contract = await this.web3Contract.deployed()
       await this.updateMessages(contract)
@@ -153,7 +153,7 @@ export default class Transaction extends Vue {
     })
   }
 
-  async sendMessageTransactionWeb3 (): Promise<void> {
+  async sendMessageTransactionHttp (): Promise<void> {
     if (!this.message) { return }
 
     await this.sendMessageTransactionWithState(async () => {
