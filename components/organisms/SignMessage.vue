@@ -125,16 +125,16 @@ export default class SignMessageCard extends Vue {
     netVersion: '',
   }
 
-  private get web3 (): any {
+  private get web3VerZero (): any {
     return (window as any).web3
   }
 
-  private get ethereum (): any {
-    return (window as any).ethereum
+  private get web3VerOne (): any {
+    return (window as any).web3['1.0']
   }
 
   netVersionHttp () {
-    const web3 = this.web3
+    const web3 = this.web3VerZero
     try {
       const netVersion = web3.version.network
       this.message.netVersion = netVersion
@@ -144,7 +144,7 @@ export default class SignMessageCard extends Vue {
   }
 
   async netVersionEthereum () {
-    const web3 = this.ethereum
+    const web3 = this.web3VerOne
     try {
       const netVersion = await web3.eth.net.getId()
       this.message.netVersion = netVersion
@@ -156,7 +156,7 @@ export default class SignMessageCard extends Vue {
   ethSignHttp (message: string) {
     this.isSigning = true
 
-    const web3 = this.web3
+    const web3 = this.web3VerZero
 
     const from = web3.eth.defaultAccount.toLowerCase()
     web3.eth.sign(from, message, (err: Error, result: string) => {
@@ -173,7 +173,7 @@ export default class SignMessageCard extends Vue {
 
   async ethSignEthereum (message: string): Promise<void> {
     await this.signAsyncWithState(async () => {
-      const web3 = this.ethereum
+      const web3 = this.web3VerOne
 
       const [from] = await this.getAddress(web3)
       await web3.eth.sign(message, from)
@@ -184,7 +184,7 @@ export default class SignMessageCard extends Vue {
 
   async personalSignHttp (text: string): Promise<void> {
     await this.signAsyncWithState(async () => {
-      const web3 = this.web3
+      const web3 = this.web3VerZero
       const from = web3.eth.defaultAccount.toLowerCase()
       const callback: Callback<JsonRPCResponse> = (err: Error | null, result?: JsonRPCResponse) => {
         if (err) { return console.error(err) }
@@ -202,7 +202,7 @@ export default class SignMessageCard extends Vue {
 
   async personalSignEthereum (text: string): Promise<void> {
     await this.signAsyncWithState(async () => {
-      const web3 = this.ethereum
+      const web3 = this.web3VerOne
 
       const [from] = await web3.eth.getAccounts()
       await web3.currentProvider.send(ProviderMethod.PersonalSign, [from, text])
@@ -213,7 +213,7 @@ export default class SignMessageCard extends Vue {
 
   async typedMessageHttp (text: string): Promise<void> {
     await this.signAsyncWithState(async () => {
-      const web3 = this.web3
+      const web3 = this.web3VerZero
 
       const from = web3.eth.defaultAccount.toLowerCase()
       const callback: Callback<JsonRPCResponse> = (err: Error | null, result?: JsonRPCResponse) => {
@@ -231,7 +231,7 @@ export default class SignMessageCard extends Vue {
 
   async typedMessageEthereum (text: string): Promise<void> {
     await this.signAsyncWithState(async () => {
-      const web3 = this.ethereum
+      const web3 = this.web3VerOne
 
       const [from] = await web3.eth.getAccounts()
       await web3.currentProvider.send(ProviderMethod.EthSignTypedDataV3, [from, text])
@@ -242,7 +242,7 @@ export default class SignMessageCard extends Vue {
 
   async ecRecoverHttp (message: string, signature: string): Promise<void> {
     await this.signAsyncWithState(async () => {
-      const web3 = this.web3
+      const web3 = this.web3VerZero
 
       const from = web3.eth.defaultAccount.toLowerCase()
       const callback: Callback<JsonRPCResponse> = (err: Error | null, result?: JsonRPCResponse) => {
@@ -265,7 +265,7 @@ export default class SignMessageCard extends Vue {
 
   async ecRecoverEthereum (message: string, signature: string): Promise<void> {
     await this.signAsyncWithState(async () => {
-      const web3 = this.ethereum
+      const web3 = this.web3VerOne
 
       const [from] = await web3.eth.getAccounts()
       const callback: Callback<JsonRPCResponse> = (err: Error | null, result?: JsonRPCResponse) => {

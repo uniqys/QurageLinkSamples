@@ -76,7 +76,7 @@ export default class Transaction extends Vue {
   message: string = ''
   messages: Message[] = []
 
-  private get web3 (): any {
+  private get web3VerZero (): any {
     const web3 = (window as any).web3
     if (!web3) {
       throw new Error('web3: `window.web3` not found')
@@ -84,16 +84,16 @@ export default class Transaction extends Vue {
     return web3
   }
 
-  private get ethereum (): any {
-    const ethereum = (window as any).ethereum
-    if (!ethereum) {
-      throw new Error('ethereum: `window.ethereum` not found')
+  private get web3VerOne (): any {
+    const web3VerOne = (window as any).web3['1.0']
+    if (!web3VerOne) {
+      throw new Error('web3 1.0: `window.web3["1.0"]` not found')
     }
-    return ethereum
+    return web3VerOne
   }
 
   private get web3Provider (): any {
-    const provider = this.web3.currentProvider
+    const provider = this.web3VerZero.currentProvider
     if (!provider) {
       throw new Error('web3Provider: `window.web3.currentProvider` not found')
     }
@@ -101,15 +101,15 @@ export default class Transaction extends Vue {
   }
 
   private get ethereumProvider (): any {
-    const provider = this.ethereum.currentProvider
+    const provider = (window as any).ethereum
     if (!provider) {
-      throw new Error('ethereumProvider: `window.ethereum.currentProvider` not found')
+      throw new Error('ethereum: `window.ethereum` not found')
     }
     return provider
   }
 
   private get account (): any {
-    return this.web3.eth.defaultAccount
+    return this.web3VerZero.eth.defaultAccount
   }
 
   private get web3Contract (): any {
@@ -126,15 +126,15 @@ export default class Transaction extends Vue {
 
   async updateBalanceHttp (): Promise<void> {
     await this.updateBalanceWithState(async () => {
-      const balance = await promisify(this.web3.eth.getBalance)(this.account) as any as string
+      const balance = await promisify(this.web3VerZero.eth.getBalance)(this.account) as any as string
       this.balance = parseInt(balance, 10)
     })
   }
 
   async updateBalanceEthereum (): Promise<void> {
     await this.updateBalanceWithState(async () => {
-      const [address] = await this.ethereum.eth.getAccounts()
-      const balance = await this.ethereum.eth.getBalance(address) as any as string
+      const [address] = await this.web3VerOne.eth.getAccounts()
+      const balance = await this.web3VerOne.eth.getBalance(address) as any as string
       this.balance = parseInt(balance, 10)
     })
   }

@@ -1202,10 +1202,10 @@
     "@types/uglify-js" "*"
     source-map "^0.6.0"
 
-"@uniqys/qurage-link-lib@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@uniqys/qurage-link-lib/-/qurage-link-lib-2.1.0.tgz#81ac4aaa2a177e4e8c029ab885cf3ae4b726f393"
-  integrity sha512-o3poXH0bkXTgc4Fn5U6LQ5/wiB6RUlH0FTQPvqh84iZPy4GroJsvWkY8oU8iH9VM0UAV+cDH0gWIRXdPSwpbnw==
+"@uniqys/qurage-link-lib@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@uniqys/qurage-link-lib/-/qurage-link-lib-3.0.0.tgz#190135f744813f9be045b9cf20cd716a34f65e2c"
+  integrity sha512-sSdrrAW5/3zUMjdhoeD0pJYo3a/rpW0kAoRIFmqvi9ElWDpfZXLHAs57LL4lgADikfO2YQq5fANBZes8pGgi+A==
   dependencies:
     "@babel/polyfill" "^7.2.5"
     axios "^0.18.0"
